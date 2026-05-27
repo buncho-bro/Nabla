@@ -1,0 +1,420 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ナブラ演算子ゲーム - WebRTCオンライン対戦</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --accent: #4caf50;
+            --border: #444;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            gap: 15px;
+        }
+        h1, h2, h3 { margin-top: 0; color: #fff; }
+        
+        /* 通信パネル */
+        #connection-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .conn-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-indicator {
+            padding: 5px 10px;
+            border-radius: 4px;
+            background-color: #555;
+            font-weight: bold;
+        }
+        .status-connected { background-color: #4caf50; color: white; }
+        
+        input[type="text"] {
+            padding: 8px;
+            background-color: #333;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background-color: #45a049; }
+
+
+        /* ゲームエリア */
+        #game-area {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0; /* flexbox child scroll fix */
+        }
+        
+        /* 左側：ゲームボード */
+        #board-section {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .player-field {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .bases-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            min-height: 50px;
+            padding: 10px;
+            background-color: #222;
+            border-radius: 4px;
+        }
+        .base-item {
+            background-color: #333;
+            border: 1px solid #555;
+            padding: 8px 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1em;
+        }
+        .delete-btn {
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+        .controls { display: flex; gap: 10px; margin-top: 10px; }
+        .controls input { flex: 1; }
+        
+        /* 右側：チャット＆ログ */
+        #chat-section {
+            flex: 1;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #222;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .message { padding: 8px; border-radius: 4px; background-color: #333; font-size: 0.9em; word-wrap: break-word; }
+        .sys-message { color: #81c784; font-style: italic; }
+        .p1-message { border-left: 3px solid #64b5f6; }
+        .p2-message { border-left: 3px solid #e57373; }
+        #chat-input-area { display: flex; gap: 5px; }
+        select { padding: 8px; background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+
+    <div id="connection-panel">
+        <div>
+            <h2>ナブラ演算子ゲーム 🧮</h2>
+        </div>
+        <div class="conn-box">
+            <span>あなたのID:</span>
+            <input type="text" id="my-id" readonly placeholder="取得中..." style="width: 150px;">
+            <button onclick="copyMyId()">コピー</button>
+        </div>
+        <div class="conn-box">
+            <span>接続先ID:</span>
+            <input type="text" id="target-id" placeholder="相手のIDを入力">
+            <button onclick="connectToPeer()">接続する</button>
+        </div>
+        <div id="conn-status" class="status-indicator">未接続</div>
+    </div>
+
+
+    <div id="game-area">
+        <div id="board-section">
+            <div class="player-field" id="p1-field">
+                <h2>プレイヤー1 の場 (<span id="p1-dim">3</span>次元)</h2>
+                <div class="bases-container" id="p1-bases"></div>
+                <div class="controls">
+                    <input type="text" id="p1-input" placeholder="追加/更新する数式を入力">
+                    <button onclick="addBase('p1')">基底を追加</button>
+                </div>
+            </div>
+
+
+            <div class="player-field" id="p2-field">
+                <h2>プレイヤー2 の場 (<span id="p2-dim">3</span>次元)</h2>
+                <div class="bases-container" id="p2-bases"></div>
+                <div class="controls">
+                    <input type="text" id="p2-input" placeholder="追加/更新する数式を入力">
+                    <button onclick="addBase('p2')">基底を追加</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="chat-section">
+            <h3>議論・ログ 💬</h3>
+            <div id="chat-messages">
+                <div class="message sys-message">ゲームを準備しました。相手とIDを共有して接続してください。</div>
+            </div>
+            <div id="chat-input-area">
+                <select id="chat-sender">
+                    <option value="p1">P1</option>
+                    <option value="p2">P2</option>
+                </select>
+                <input type="text" id="chat-input" placeholder="メッセージを入力..." onkeypress="handleChatKeyPress(event)">
+                <button onclick="sendChatMessage()">送信</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // === ゲームの状態 ===
+        let fields = { p1: ['1', 'x', 'x^2'], p2: ['1', 'x', 'x^2'] };
+        
+        // === WebRTC (PeerJS) の設定 ===
+        let peer = null;
+        let conn = null;
+
+
+        // PeerJS初期化（ランダムなIDを取得）
+        peer = new Peer();
+        peer.on('open', (id) => {
+            document.getElementById('my-id').value = id;
+            addSystemLog(`あなたのIDが生成されました: ${id}`);
+        });
+
+
+        // 相手から接続されたときの処理
+        peer.on('connection', (connection) => {
+            conn = connection;
+            setupConnection();
+        });
+
+
+        // 相手に接続するボタンの処理
+        function connectToPeer() {
+            const targetId = document.getElementById('target-id').value.trim();
+            if (!targetId) {
+                alert("接続先のIDを入力してください");
+                return;
+            }
+            conn = peer.connect(targetId);
+            setupConnection();
+        }
+
+
+        // 通信確立後のセットアップ
+        function setupConnection() {
+            conn.on('open', () => {
+                document.getElementById('conn-status').textContent = '接続済み';
+                document.getElementById('conn-status').className = 'status-indicator status-connected';
+                addSystemLog('相手との通信が確立しました！お互いに操作が同期されます。');
+                
+                // 接続確立時に現在の盤面を相手に同期する
+                syncBoard();
+            });
+
+
+            conn.on('data', (data) => {
+                const payload = JSON.parse(data);
+                if (payload.type === 'SYNC_BOARD') {
+                    fields = payload.data;
+                    renderBoardLocally();
+                } else if (payload.type === 'CHAT') {
+                    renderChatMessage(payload.sender, payload.text);
+                } else if (payload.type === 'SYS_LOG') {
+                    renderSystemLog(payload.text);
+                }
+            });
+
+
+            conn.on('close', () => {
+                document.getElementById('conn-status').textContent = '切断されました';
+                document.getElementById('conn-status').className = 'status-indicator';
+                addSystemLog('通信が切断されました。');
+                conn = null;
+            });
+        }
+
+
+        function copyMyId() {
+            const myId = document.getElementById('my-id');
+            myId.select();
+            document.execCommand("copy");
+            alert("IDをコピーしました。相手に教えてあげてください。");
+        }
+
+
+        // === 同期・通信処理 ===
+        function syncBoard() {
+            if (conn && conn.open) {
+                conn.send(JSON.stringify({ type: 'SYNC_BOARD', data: fields }));
+            }
+        }
+
+
+        function broadcastChat(sender, text) {
+            if (conn && conn.open) {
+                conn.send(JSON.stringify({ type: 'CHAT', sender: sender, text: text }));
+            }
+        }
+
+
+        function broadcastSysLog(text) {
+            if (conn && conn.open) {
+                conn.send(JSON.stringify({ type: 'SYS_LOG', text: text }));
+            }
+        }
+
+
+        // === ゲームロジック・描画処理 ===
+        function renderBoardLocally() {
+            ['p1', 'p2'].forEach(player => {
+                const container = document.getElementById(`${player}-bases`);
+                container.innerHTML = ''; 
+                
+                fields[player].forEach((base, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'base-item';
+                    
+                    const text = document.createElement('span');
+                    text.textContent = base;
+                    
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-btn';
+                    delBtn.textContent = '消去';
+                    delBtn.onclick = () => removeBase(player, index, base);
+                    
+                    item.appendChild(text);
+                    item.appendChild(delBtn);
+                    container.appendChild(item);
+                });
+                document.getElementById(`${player}-dim`).textContent = fields[player].length;
+            });
+        }
+
+
+        function addBase(player) {
+            const input = document.getElementById(`${player}-input`);
+            const val = input.value.trim();
+            if (val) {
+                fields[player].push(val);
+                const logMsg = `${player.toUpperCase()} の場に 「${val}」 が追加/更新されました。`;
+                renderSystemLog(logMsg);
+                broadcastSysLog(logMsg);
+                
+                input.value = '';
+                renderBoardLocally();
+                syncBoard();
+            }
+        }
+
+
+        function removeBase(player, index, baseText) {
+            fields[player].splice(index, 1);
+            const logMsg = `${player.toUpperCase()} の場から 「${baseText}」 が消去されました。`;
+            renderSystemLog(logMsg);
+            broadcastSysLog(logMsg);
+            
+            renderBoardLocally();
+            syncBoard();
+            
+            if (fields[player].length === 0) {
+                const winMsg = `🏆 ${player.toUpperCase()} の場が0次元になりました！`;
+                renderSystemLog(winMsg);
+                broadcastSysLog(winMsg);
+            }
+        }
+
+
+        // === チャットロジック ===
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const sender = document.getElementById('chat-sender').value;
+            const text = input.value.trim();
+            
+            if (text) {
+                renderChatMessage(sender, text);
+                broadcastChat(sender, text);
+                input.value = '';
+            }
+        }
+
+
+        function renderChatMessage(sender, text) {
+            const msgBox = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}-message`;
+            msgDiv.innerHTML = `<strong>${sender.toUpperCase()}:</strong> ${text}`;
+            msgBox.appendChild(msgDiv);
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+
+        function renderSystemLog(text) {
+            const msgBox = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message sys-message';
+            msgDiv.textContent = text;
+            msgBox.appendChild(msgDiv);
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }
+
+
+        // 初期描画
+        renderBoardLocally();
+    </script>
+</body>
+</html>
