@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -25,9 +25,8 @@
             box-sizing: border-box;
             gap: 15px;
         }
-        h1, h2, h3 { margin-top: 0; color: #fff; }
+        h1, h2, h3, h4 { margin-top: 0; margin-bottom: 10px; color: #fff; }
         
-        /* 通信パネル */
         #connection-panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border);
@@ -38,235 +37,165 @@
             gap: 20px;
             flex-wrap: wrap;
         }
-        .conn-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .status-indicator {
-            padding: 5px 10px;
-            border-radius: 4px;
-            background-color: #555;
-            font-weight: bold;
-        }
+        .conn-box { display: flex; align-items: center; gap: 10px; }
+        .status-indicator { padding: 5px 10px; border-radius: 4px; background-color: #555; font-weight: bold; }
         .status-connected { background-color: #4caf50; color: white; }
         
-        input[type="text"] {
-            padding: 8px;
-            background-color: #333;
-            border: 1px solid #555;
-            color: white;
-            border-radius: 4px;
+        input[type="text"], select {
+            padding: 8px; background-color: #333; border: 1px solid #555; color: white; border-radius: 4px;
         }
         button {
-            padding: 8px 15px;
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
+            padding: 8px 15px; background-color: var(--accent); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
         }
         button:hover { background-color: #45a049; }
+        .btn-danger { background-color: #f44336; }
+        .btn-danger:hover { background-color: #d32f2f; }
 
-
-        /* ゲームエリア */
-        #game-area {
-            display: flex;
-            gap: 20px;
-            flex: 1;
-            min-height: 0; /* flexbox child scroll fix */
-        }
+        #game-area { display: flex; gap: 20px; flex: 1; min-height: 0; }
         
-        /* 左側：ゲームボード */
-        #board-section {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-        }
-        .player-field {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-        }
-        .bases-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-            min-height: 50px;
-            padding: 10px;
-            background-color: #222;
-            border-radius: 4px;
+        #board-section { flex: 2; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+        .player-area { background-color: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+        
+        .bases-container, .hand-container {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; min-height: 50px; padding: 10px; background-color: #222; border-radius: 4px;
         }
         .base-item {
-            background-color: #333;
-            border: 1px solid #555;
-            padding: 8px 15px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 1.1em;
+            background-color: #333; border: 1px solid #555; padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; gap: 10px; font-family: 'Courier New', Courier, monospace;
         }
-        .delete-btn {
-            background-color: #ff5252;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            padding: 2px 6px;
+        .card-item {
+            background-color: #fffde7; color: #000; border: 1px solid #ccc; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: 'Courier New', Courier, monospace;
         }
-        .controls { display: flex; gap: 10px; margin-top: 10px; }
+        .card-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .card-hidden { background-color: #555; color: #fff; cursor: default; }
+        .card-hidden:hover { transform: none; box-shadow: none; }
+        
+        .delete-btn { background-color: #ff5252; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 2px 6px; }
+        .controls { display: flex; gap: 10px; }
         .controls input { flex: 1; }
         
-        /* 右側：チャット＆ログ */
         #chat-section {
-            flex: 1;
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
+            flex: 1; background-color: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; display: flex; flex-direction: column; padding: 15px;
         }
         #chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            background-color: #222;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex: 1; overflow-y: auto; background-color: #222; border-radius: 4px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;
         }
         .message { padding: 8px; border-radius: 4px; background-color: #333; font-size: 0.9em; word-wrap: break-word; }
         .sys-message { color: #81c784; font-style: italic; }
         .p1-message { border-left: 3px solid #64b5f6; }
         .p2-message { border-left: 3px solid #e57373; }
         #chat-input-area { display: flex; gap: 5px; }
-        select { padding: 8px; background-color: #333; color: white; border: 1px solid #555; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-
     <div id="connection-panel">
-        <div>
-            <h2>ナブラ演算子ゲーム 🧮</h2>
+        <div><h2>ナブラ演算子ゲーム</h2></div>
+        <div class="conn-box">
+            <span>あなたの役割:</span>
+            <select id="my-role" onchange="renderStateLocally()">
+                <option value="p1">P1</option>
+                <option value="p2">P2</option>
+            </select>
         </div>
         <div class="conn-box">
-            <span>あなたのID:</span>
-            <input type="text" id="my-id" readonly placeholder="取得中..." style="width: 150px;">
+            <span>ID:</span>
+            <input type="text" id="my-id" readonly placeholder="取得中..." style="width: 120px;">
             <button onclick="copyMyId()">コピー</button>
         </div>
         <div class="conn-box">
-            <span>接続先ID:</span>
-            <input type="text" id="target-id" placeholder="相手のIDを入力">
-            <button onclick="connectToPeer()">接続する</button>
+            <span>接続先:</span>
+            <input type="text" id="target-id" placeholder="相手のID">
+            <button onclick="connectToPeer()">接続</button>
         </div>
         <div id="conn-status" class="status-indicator">未接続</div>
+        
+        <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+            <span style="font-weight: bold;">山札残り: <span id="deck-count">0</span>枚</span>
+            <button class="btn-danger" onclick="initGame()">ゲーム初期化 (山札生成＆配布)</button>
+        </div>
     </div>
-
 
     <div id="game-area">
         <div id="board-section">
-            <div class="player-field" id="p1-field">
-                <h2>プレイヤー1 の場 (<span id="p1-dim">3</span>次元)</h2>
+            <div class="player-area" id="p1-area">
+                <h3>P1 の場 (<span id="p1-dim">3</span>次元)</h3>
                 <div class="bases-container" id="p1-bases"></div>
                 <div class="controls">
                     <input type="text" id="p1-input" placeholder="追加/更新する数式を入力">
                     <button onclick="addBase('p1')">基底を追加</button>
                 </div>
+                <h4 style="margin-top: 15px;">手札 (<span id="p1-hand-count">0</span>枚)</h4>
+                <div class="hand-container" id="p1-hand"></div>
+                <button onclick="drawCard('p1', 1)">1枚ドロー</button>
             </div>
 
-
-            <div class="player-field" id="p2-field">
-                <h2>プレイヤー2 の場 (<span id="p2-dim">3</span>次元)</h2>
+            <div class="player-area" id="p2-area">
+                <h3>P2 の場 (<span id="p2-dim">3</span>次元)</h3>
                 <div class="bases-container" id="p2-bases"></div>
                 <div class="controls">
                     <input type="text" id="p2-input" placeholder="追加/更新する数式を入力">
                     <button onclick="addBase('p2')">基底を追加</button>
                 </div>
+                <h4 style="margin-top: 15px;">手札 (<span id="p2-hand-count">0</span>枚)</h4>
+                <div class="hand-container" id="p2-hand"></div>
+                <button onclick="drawCard('p2', 1)">1枚ドロー</button>
             </div>
         </div>
-
 
         <div id="chat-section">
             <h3>議論・ログ 💬</h3>
             <div id="chat-messages">
-                <div class="message sys-message">ゲームを準備しました。相手とIDを共有して接続してください。</div>
+                <div class="message sys-message">役割を選択し、相手と接続してください。その後「ゲーム初期化」でカードが配られます。</div>
             </div>
             <div id="chat-input-area">
-                <select id="chat-sender">
-                    <option value="p1">P1</option>
-                    <option value="p2">P2</option>
-                </select>
-                <input type="text" id="chat-input" placeholder="メッセージを入力..." onkeypress="handleChatKeyPress(event)">
+                <input type="text" id="chat-input" placeholder="メッセージを入力..." onkeypress="handleChatKeyPress(event)" style="flex: 1;">
                 <button onclick="sendChatMessage()">送信</button>
             </div>
         </div>
     </div>
 
-
     <script>
-        // === ゲームの状態 ===
-        let fields = { p1: ['1', 'x', 'x^2'], p2: ['1', 'x', 'x^2'] };
+        // === カードの内訳定義 ===
+        const CARD_COUNTS = {
+            'x': 8, 'sin(x)': 4, 'cos(x)': 4, '0': 2, '1': 2, 'e^x': 4, 'x^2': 3,
+            'lim x->0': 2, 'lim x->-∞': 2, 'lim x->+∞': 2, 'liminf x->+∞': 1, 'limsup x->+∞': 1,
+            'log': 3, '∫': 8, 'f^-1': 2, '√': 2,
+            'Δ': 2, '∇': 10,
+            '× (かける)': 5, '÷ (わる)': 5, 'd/dx': 8
+        };
+
+        // === ゲームのグローバル状態 ===
+        let gameState = {
+            fields: { p1: ['1', 'x', 'x^2'], p2: ['1', 'x', 'x^2'] },
+            hands: { p1: [], p2: [] },
+            deck: []
+        };
         
-        // === WebRTC (PeerJS) の設定 ===
-        let peer = null;
+        // === WebRTC (PeerJS) ===
+        let peer = new Peer();
         let conn = null;
 
+        peer.on('open', (id) => { document.getElementById('my-id').value = id; });
+        peer.on('connection', (connection) => { conn = connection; setupConnection(); });
 
-        // PeerJS初期化（ランダムなIDを取得）
-        peer = new Peer();
-        peer.on('open', (id) => {
-            document.getElementById('my-id').value = id;
-            addSystemLog(`あなたのIDが生成されました: ${id}`);
-        });
-
-
-        // 相手から接続されたときの処理
-        peer.on('connection', (connection) => {
-            conn = connection;
-            setupConnection();
-        });
-
-
-        // 相手に接続するボタンの処理
         function connectToPeer() {
             const targetId = document.getElementById('target-id').value.trim();
-            if (!targetId) {
-                alert("接続先のIDを入力してください");
-                return;
-            }
-            conn = peer.connect(targetId);
-            setupConnection();
+            if (targetId) { conn = peer.connect(targetId); setupConnection(); }
         }
 
-
-        // 通信確立後のセットアップ
         function setupConnection() {
             conn.on('open', () => {
                 document.getElementById('conn-status').textContent = '接続済み';
                 document.getElementById('conn-status').className = 'status-indicator status-connected';
-                addSystemLog('相手との通信が確立しました！お互いに操作が同期されます。');
-                
-                // 接続確立時に現在の盤面を相手に同期する
-                syncBoard();
+                renderSystemLog('相手との通信が確立しました。');
+                syncState();
             });
-
 
             conn.on('data', (data) => {
                 const payload = JSON.parse(data);
-                if (payload.type === 'SYNC_BOARD') {
-                    fields = payload.data;
-                    renderBoardLocally();
+                if (payload.type === 'SYNC_STATE') {
+                    gameState = payload.data;
+                    renderStateLocally();
                 } else if (payload.type === 'CHAT') {
                     renderChatMessage(payload.sender, payload.text);
                 } else if (payload.type === 'SYS_LOG') {
@@ -274,147 +203,181 @@
                 }
             });
 
-
             conn.on('close', () => {
-                document.getElementById('conn-status').textContent = '切断されました';
+                document.getElementById('conn-status').textContent = '切断';
                 document.getElementById('conn-status').className = 'status-indicator';
-                addSystemLog('通信が切断されました。');
                 conn = null;
             });
         }
 
-
         function copyMyId() {
             const myId = document.getElementById('my-id');
-            myId.select();
-            document.execCommand("copy");
-            alert("IDをコピーしました。相手に教えてあげてください。");
+            myId.select(); document.execCommand("copy");
         }
 
-
-        // === 同期・通信処理 ===
-        function syncBoard() {
-            if (conn && conn.open) {
-                conn.send(JSON.stringify({ type: 'SYNC_BOARD', data: fields }));
-            }
+        function syncState() {
+            if (conn && conn.open) conn.send(JSON.stringify({ type: 'SYNC_STATE', data: gameState }));
         }
-
-
         function broadcastChat(sender, text) {
-            if (conn && conn.open) {
-                conn.send(JSON.stringify({ type: 'CHAT', sender: sender, text: text }));
-            }
+            if (conn && conn.open) conn.send(JSON.stringify({ type: 'CHAT', sender, text }));
         }
-
-
         function broadcastSysLog(text) {
-            if (conn && conn.open) {
-                conn.send(JSON.stringify({ type: 'SYS_LOG', text: text }));
+            if (conn && conn.open) conn.send(JSON.stringify({ type: 'SYS_LOG', text }));
+        }
+
+        // === ゲームロジック ===
+
+        // 山札を生成してシャッフルし、初期手札を配る
+        function initGame() {
+            if (!confirm("現在の場と手札をリセットし、新しくゲームを始めますか？")) return;
+            
+            // 山札の構築
+            let newDeck = [];
+            for (const [card, count] of Object.entries(CARD_COUNTS)) {
+                for (let i = 0; i < count; i++) newDeck.push(card);
+            }
+            // シャッフル (Fisher-Yates)
+            for (let i = newDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newDeck[i], newDeck[j]] = [newDeck[j], newDeck[i]];
+            }
+
+            gameState.deck = newDeck;
+            gameState.fields = { p1: ['1', 'x', 'x^2'], p2: ['1', 'x', 'x^2'] };
+            gameState.hands = { p1: [], p2: [] };
+
+            // 7枚ずつ配る
+            for (let i = 0; i < 7; i++) {
+                if (gameState.deck.length > 0) gameState.hands.p1.push(gameState.deck.pop());
+                if (gameState.deck.length > 0) gameState.hands.p2.push(gameState.deck.pop());
+            }
+
+            const logMsg = "🎲 山札をシャッフルし、各プレイヤーに初期手札を7枚配りました。";
+            renderSystemLog(logMsg); broadcastSysLog(logMsg);
+            
+            renderStateLocally(); syncState();
+        }
+
+        // カードを引く
+        function drawCard(player, amount) {
+            let drawn = 0;
+            for (let i = 0; i < amount; i++) {
+                if (gameState.deck.length > 0) {
+                    gameState.hands[player].push(gameState.deck.pop());
+                    drawn++;
+                }
+            }
+            if (drawn > 0) {
+                const logMsg = `${player.toUpperCase()} が山札から ${drawn}枚 カードを引きました。`;
+                renderSystemLog(logMsg); broadcastSysLog(logMsg);
+                renderStateLocally(); syncState();
+            } else {
+                alert("山札が空です！");
             }
         }
 
-
-        // === ゲームロジック・描画処理 ===
-        function renderBoardLocally() {
-            ['p1', 'p2'].forEach(player => {
-                const container = document.getElementById(`${player}-bases`);
-                container.innerHTML = ''; 
-                
-                fields[player].forEach((base, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'base-item';
-                    
-                    const text = document.createElement('span');
-                    text.textContent = base;
-                    
-                    const delBtn = document.createElement('button');
-                    delBtn.className = 'delete-btn';
-                    delBtn.textContent = '消去';
-                    delBtn.onclick = () => removeBase(player, index, base);
-                    
-                    item.appendChild(text);
-                    item.appendChild(delBtn);
-                    container.appendChild(item);
-                });
-                document.getElementById(`${player}-dim`).textContent = fields[player].length;
-            });
+        // 手札のカードを使用（消費）する
+        function useCard(player, index, cardName) {
+            const myRole = document.getElementById('my-role').value;
+            if (player !== myRole) {
+                alert("相手の手札は操作できません。"); return;
+            }
+            if (confirm(`手札の [${cardName}] を使用（消費）しますか？\n※適用後の数式は手動で場に追加してください。`)) {
+                gameState.hands[player].splice(index, 1);
+                const logMsg = `🔥 ${player.toUpperCase()} が手札から [${cardName}] を使用しました！`;
+                renderSystemLog(logMsg); broadcastSysLog(logMsg);
+                renderStateLocally(); syncState();
+            }
         }
 
-
+        // 場の基底を追加
         function addBase(player) {
             const input = document.getElementById(`${player}-input`);
             const val = input.value.trim();
             if (val) {
-                fields[player].push(val);
+                gameState.fields[player].push(val);
                 const logMsg = `${player.toUpperCase()} の場に 「${val}」 が追加/更新されました。`;
-                renderSystemLog(logMsg);
-                broadcastSysLog(logMsg);
-                
+                renderSystemLog(logMsg); broadcastSysLog(logMsg);
                 input.value = '';
-                renderBoardLocally();
-                syncBoard();
+                renderStateLocally(); syncState();
             }
         }
 
-
+        // 場の基底を削除
         function removeBase(player, index, baseText) {
-            fields[player].splice(index, 1);
+            gameState.fields[player].splice(index, 1);
             const logMsg = `${player.toUpperCase()} の場から 「${baseText}」 が消去されました。`;
-            renderSystemLog(logMsg);
-            broadcastSysLog(logMsg);
+            renderSystemLog(logMsg); broadcastSysLog(logMsg);
             
-            renderBoardLocally();
-            syncBoard();
+            renderStateLocally(); syncState();
             
-            if (fields[player].length === 0) {
+            if (gameState.fields[player].length === 0) {
                 const winMsg = `🏆 ${player.toUpperCase()} の場が0次元になりました！`;
-                renderSystemLog(winMsg);
-                broadcastSysLog(winMsg);
+                renderSystemLog(winMsg); broadcastSysLog(winMsg);
             }
         }
 
+        // === 画面描画 ===
+        function renderStateLocally() {
+            const myRole = document.getElementById('my-role').value;
+            document.getElementById('deck-count').textContent = gameState.deck.length;
 
-        // === チャットロジック ===
-        function handleChatKeyPress(event) {
-            if (event.key === 'Enter') sendChatMessage();
+            ['p1', 'p2'].forEach(player => {
+                // 場の描画
+                const fieldContainer = document.getElementById(`${player}-bases`);
+                fieldContainer.innerHTML = ''; 
+                gameState.fields[player].forEach((base, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'base-item';
+                    item.innerHTML = `<span>${base}</span><button class="delete-btn" onclick="removeBase('${player}', ${index}, '${base}')">消去</button>`;
+                    fieldContainer.appendChild(item);
+                });
+                document.getElementById(`${player}-dim`).textContent = gameState.fields[player].length;
+
+                // 手札の描画
+                const handContainer = document.getElementById(`${player}-hand`);
+                handContainer.innerHTML = '';
+                document.getElementById(`${player}-hand-count`).textContent = gameState.hands[player].length;
+                
+                gameState.hands[player].forEach((card, index) => {
+                    const cardDiv = document.createElement('div');
+                    // 自分の役割と同じなら表面を表示、違うなら裏面を表示
+                    if (player === myRole) {
+                        cardDiv.className = 'card-item';
+                        cardDiv.textContent = card;
+                        cardDiv.onclick = () => useCard(player, index, card);
+                    } else {
+                        cardDiv.className = 'card-item card-hidden';
+                        cardDiv.textContent = '🎴';
+                    }
+                    handContainer.appendChild(cardDiv);
+                });
+            });
         }
 
-
+        // === チャット ===
+        function handleChatKeyPress(event) { if (event.key === 'Enter') sendChatMessage(); }
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
-            const sender = document.getElementById('chat-sender').value;
+            const sender = document.getElementById('my-role').value;
             const text = input.value.trim();
-            
             if (text) {
-                renderChatMessage(sender, text);
-                broadcastChat(sender, text);
+                renderChatMessage(sender, text); broadcastChat(sender, text);
                 input.value = '';
             }
         }
-
-
         function renderChatMessage(sender, text) {
             const msgBox = document.getElementById('chat-messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}-message`;
-            msgDiv.innerHTML = `<strong>${sender.toUpperCase()}:</strong> ${text}`;
-            msgBox.appendChild(msgDiv);
+            msgBox.innerHTML += `<div class="message ${sender}-message"><strong>${sender.toUpperCase()}:</strong> ${text}</div>`;
             msgBox.scrollTop = msgBox.scrollHeight;
         }
-
-
         function renderSystemLog(text) {
             const msgBox = document.getElementById('chat-messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message sys-message';
-            msgDiv.textContent = text;
-            msgBox.appendChild(msgDiv);
+            msgBox.innerHTML += `<div class="message sys-message">${text}</div>`;
             msgBox.scrollTop = msgBox.scrollHeight;
         }
 
-
-        // 初期描画
-        renderBoardLocally();
+        renderStateLocally();
     </script>
 </body>
 </html>
